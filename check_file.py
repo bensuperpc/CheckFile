@@ -1,5 +1,5 @@
 from multiprocessing.dummy import Pool as ThreadPool
-#import numpy as np
+import numpy as np
 import time
 import multiprocessing as mp
 
@@ -8,11 +8,19 @@ import pathlib
 import sys
 import time
 import os
+import sys
 import hashlib
 
 import json
 #from itertools import groupby
 
+#or 
+
+update = False
+
+if len(sys.argv) >= 2:
+    if sys.argv[1] == 'update' or sys.argv[1] == '-u':
+        update = True
 
 def checkfile(fname, mode='sha3_512'):
     #md5 = hashlib.md5()
@@ -29,9 +37,9 @@ def checkfile(fname, mode='sha3_512'):
 
 def my_function(_file):
     if os.path.exists(_file):
-        return [_file, checkfile(_file)]
+        return (_file, checkfile(_file))
     else:
-        return [_file, 'null']
+        return (_file, 'null')
 
 
 path = pathlib.Path(__file__).parent.absolute()
@@ -48,6 +56,7 @@ for r, d, f in os.walk(path):
 pool = ThreadPool(24)
 pool = mp.Pool(processes=24)
 res = pool.map(my_function, files)
+
 print('Time:', time.process_time() - start)
 
 #res.sort(key=lambda tup: tup[0])
@@ -59,7 +68,8 @@ params = {}
 params = {'Checker': {"params": {"check": "sha3_512", "multiprocessing": "True"},
                       'files': [{'file': x, 'check': y} for x, y in res]}}
 
-if not os.path.isfile('data.json'):
+if not os.path.isfile('data.json') or update == True:
+    print('Create or update')
     with open('data.json', 'w', encoding='utf-8') as f:
         json.dump(params, f, ensure_ascii=False, sort_keys=True, indent=4)
 
@@ -71,26 +81,31 @@ with open('data.json', 'r') as json_file:
     data = data['Checker']
 
     for p in data['files']:
-        json_data.append([p['file'], p['check']])
+        json_data.append((p['file'], p['check']))
 
-res = [i for i in res if not i[0] == 'test.py']
-res = [i for i in res if not i[0] == 'data.json']
+#res = [i for i in res if not i[0] == os.path.basename(__file__)]
 
-json_data = [i for i in json_data if not i[0] == 'test.py']
-json_data = [i for i in json_data if not i[0] == 'data.json']
+json_data = filter(lambda x: x[0] != 'data.json', json_data)
+json_data = filter(lambda x: x[0] != os.path.basename(__file__), json_data)
+res = filter(lambda x: x[0] != 'data.json', res)
+res = filter(lambda x: x[0] != os.path.basename(__file__), res)
 
 start = time.process_time()
-json_data_clean = json_data.copy()
-res_clean = res.copy()
 
+'''
+res_clean = res.copy()
 for i in range(0, len(json_data)):
     if json_data[i] in res_clean:
         res_clean.remove(json_data[i])
+'''
 
-for i in range(0, len(res)):
-    if res[i] in json_data_clean:
-        json_data_clean.remove(res[i])
+res_clean = set(res) - set(json_data)
+json_data_clean = set(json_data) - set(res)
 
-print(len(res_clean), 'Files changed')
+print('In JSON:', len(res_clean), 'Files changed or removed')
+print('Current dir:', len(json_data_clean), 'Files changed or removed')
+
+
+
 print('Time:', time.process_time() - start)
 
