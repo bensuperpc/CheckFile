@@ -14,7 +14,7 @@ import hashlib
 import json
 #from itertools import groupby
 
-#or 
+# or
 
 update = False
 
@@ -25,6 +25,7 @@ if len(sys.argv) >= 2:
         print('you can add "-u" or "-update" to update json')
     else:
         print('Commande inconnue, please use "-h" or "-update" to display help')
+
 
 def checkfile(fname, mode='sha3_512'):
     #md5 = hashlib.md5()
@@ -65,8 +66,12 @@ print('Time:', time.process_time() - start)
 
 #res.sort(key=lambda tup: tup[0])
 
-print(len(res), 'files founds')
+res = filter(lambda x: x[0] != 'data.json', res)
+res = filter(lambda x: x[1] != 'null', res)
+res = filter(lambda x: x[0] != os.path.basename(__file__), res)
+res = list(res)
 
+print(len(res), 'files founds')
 
 params = {}
 params = {'Checker': {"params": {"check": "sha3_512", "multiprocessing": "True"},
@@ -93,10 +98,6 @@ json_data = filter(lambda x: x[0] != 'data.json', json_data)
 json_data = filter(lambda x: x[0] != os.path.basename(__file__), json_data)
 json_data = list(json_data)
 
-res = filter(lambda x: x[0] != 'data.json', res)
-res = filter(lambda x: x[0] != os.path.basename(__file__), res)
-res = list(res)
-
 start = time.process_time()
 
 '''
@@ -113,4 +114,3 @@ print('Current dir:', len(res_clean), 'Files changed or removed')
 print('In JSON:', len(json_data_clean), 'Files changed or removed')
 
 print('Time:', time.process_time() - start)
-
