@@ -1,5 +1,5 @@
 from multiprocessing.dummy import Pool as ThreadPool
-import numpy as np
+#import numpy as np
 import time
 import multiprocessing as mp
 
@@ -11,7 +11,7 @@ import os
 import hashlib
 
 import json
-from itertools import groupby
+#from itertools import groupby
 
 
 def checkfile(fname, mode='sha3_512'):
