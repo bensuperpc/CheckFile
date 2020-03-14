@@ -19,8 +19,12 @@ import json
 update = False
 
 if len(sys.argv) >= 2:
-    if sys.argv[1] == 'update' or sys.argv[1] == '-u':
+    if sys.argv[1] == '-update' or sys.argv[1] == '-u':
         update = True
+    elif sys.argv[1] == '-help' or sys.argv[1] == '-h':
+        print('you can add "-u" or "-update" to update json')
+    else:
+        print('Commande inconnue, please use "-h" or "-update" to display help')
 
 def checkfile(fname, mode='sha3_512'):
     #md5 = hashlib.md5()
@@ -87,8 +91,11 @@ with open('data.json', 'r') as json_file:
 
 json_data = filter(lambda x: x[0] != 'data.json', json_data)
 json_data = filter(lambda x: x[0] != os.path.basename(__file__), json_data)
+json_data = list(json_data)
+
 res = filter(lambda x: x[0] != 'data.json', res)
 res = filter(lambda x: x[0] != os.path.basename(__file__), res)
+res = list(res)
 
 start = time.process_time()
 
@@ -102,10 +109,8 @@ for i in range(0, len(json_data)):
 res_clean = set(res) - set(json_data)
 json_data_clean = set(json_data) - set(res)
 
-print('In JSON:', len(res_clean), 'Files changed or removed')
-print('Current dir:', len(json_data_clean), 'Files changed or removed')
-
-
+print('Current dir:', len(res_clean), 'Files changed or removed')
+print('In JSON:', len(json_data_clean), 'Files changed or removed')
 
 print('Time:', time.process_time() - start)
 
