@@ -1,5 +1,4 @@
 from multiprocessing.dummy import Pool as ThreadPool
-import numpy as np
 import time
 import multiprocessing as mp
 
@@ -52,11 +51,10 @@ files = []
 
 
 start = time.process_time()
-# r=root, d=directories, f = files
-for r, d, f in os.walk(path):
-    #thread_wraper(r, d, f)
-    for file in f:
-        files.append(os.path.relpath(os.path.join(r, file), path))
+
+for path in Path('.').rglob('*'):
+    if path.is_file():
+        files.append(str(path))
 
 pool = ThreadPool(24)
 pool = mp.Pool(processes=24)
